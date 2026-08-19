@@ -56,3 +56,6 @@ def test_after_move_screen_snapshot(snap_compare) -> None:
         run_before=run_before,
         terminal_size=(80, 24),
     )
+
+
+# Snapshot tests intentionally use a fixed terminal size for stable baselines.
