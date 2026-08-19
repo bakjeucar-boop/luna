@@ -48,9 +48,13 @@ def test_initial_screen_snapshot(snap_compare) -> None:
 
 
 def test_after_move_screen_snapshot(snap_compare) -> None:
+    async def run_before(pilot) -> None:
+        pilot.app.move_snake()
+        await pilot.pause()
+
     assert snap_compare(
         SnakeApp(),
-        press=["right"],
+        run_before=run_before,
         terminal_size=(40, 12),
     )
 
