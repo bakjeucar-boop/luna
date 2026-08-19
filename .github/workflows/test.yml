@@ -27,6 +27,15 @@ jobs:
       - name: Run pytest and update snapshots
         run: python -m pytest -q --snapshot-update
 
+      - name: Upload generated snapshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: textual-snapshots
+          path: |
+            **/__snapshots__/**
+            **/*.svg
+          if-no-files-found: warn
+
       - name: Commit generated snapshots
         if: github.event_name == 'push' && github.ref == 'refs/heads/feat/snake-textual'
         run: |
