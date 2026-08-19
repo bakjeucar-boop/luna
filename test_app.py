@@ -41,3 +41,18 @@ async def test_self_collision_causes_game_over() -> None:
         app.direction = (0, 1)
         await pilot.press("down")
         assert app.game_over is True
+
+
+def test_initial_screen_snapshot(snap_compare) -> None:
+    assert snap_compare(SnakeApp(), terminal_size=(80, 24))
+
+
+def test_after_move_screen_snapshot(snap_compare) -> None:
+    async def run_before(pilot) -> None:
+        await pilot.press("right")
+
+    assert snap_compare(
+        SnakeApp(),
+        run_before=run_before,
+        terminal_size=(80, 24),
+    )
