@@ -44,7 +44,7 @@ async def test_self_collision_causes_game_over() -> None:
 
 
 def test_initial_screen_snapshot(snap_compare) -> None:
-    assert snap_compare(SnakeApp(), terminal_size=(80, 24))
+    assert snap_compare(SnakeApp(), terminal_size=(40, 12))
 
 
 def test_after_move_screen_snapshot(snap_compare) -> None:
@@ -54,7 +54,7 @@ def test_after_move_screen_snapshot(snap_compare) -> None:
     assert snap_compare(
         SnakeApp(),
         run_before=run_before,
-        terminal_size=(80, 24),
+        terminal_size=(40, 12),
     )
 
 
