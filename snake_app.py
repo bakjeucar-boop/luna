@@ -8,9 +8,9 @@ from textual.widgets import Footer, Header, Static
 
 
 class SnakeBoard(Static):
-    def __init__(self, app: "SnakeApp") -> None:
-        super().__init__()
-        self.game = app
+    def __init__(self, game: "SnakeApp", **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.game = game
 
     def render(self) -> str:
         game = self.game
@@ -19,14 +19,10 @@ class SnakeBoard(Static):
             cells[game.snake[0]] = "▓"
         if game.food is not None:
             cells[game.food] = "●"
-
-        lines = []
         border = "+" + "--" * game.width + "+"
-        lines.append(border)
+        lines = [border]
         for y in range(game.height):
-            row = ["  "] * game.width
-            for x in range(game.width):
-                row[x] = f"{cells.get((x, y), ' '):2}"
+            row = [f"{cells.get((x, y), ' '):2}" for x in range(game.width)]
             lines.append("|" + "".join(row) + "|")
         lines.append(border)
         return "\n".join(lines)
@@ -40,12 +36,7 @@ class SnakeApp(App[None]):
     #board { width: auto; height: auto; border: round green; padding: 1; }
     #status { width: auto; height: 1; margin: 1 0; }
     """
-
-    BINDINGS = [
-        ("q", "quit", "Quit"),
-        ("r", "restart", "Restart"),
-    ]
-
+    BINDINGS = [("q", "quit", "Quit"), ("r", "restart", "Restart")]
     width = 20
     height = 12
 
@@ -69,8 +60,7 @@ class SnakeApp(App[None]):
         self.update_view()
 
     def restart_game(self) -> None:
-        cy = self.height // 2
-        cx = self.width // 2
+        cy, cx = self.height // 2, self.width // 2
         self.snake = [(cx, cy), (cx - 1, cy), (cx - 2, cy)]
         self.direction = (1, 0)
         self.score = 0
@@ -79,16 +69,10 @@ class SnakeApp(App[None]):
 
     def action_restart(self) -> None:
         self.restart_game()
-        if self.is_mounted:
-            self.update_view()
+        self.update_view()
 
     def on_key(self, event) -> None:
-        directions = {
-            "up": (0, -1),
-            "down": (0, 1),
-            "left": (-1, 0),
-            "right": (1, 0),
-        }
+        directions = {"up": (0, -1), "down": (0, 1), "left": (-1, 0), "right": (1, 0)}
         if event.key in directions and not self.game_over:
             new_direction = directions[event.key]
             if new_direction != (-self.direction[0], -self.direction[1]):
@@ -102,7 +86,6 @@ class SnakeApp(App[None]):
         head_x, head_y = self.snake[0]
         dx, dy = self.direction
         new_head = (head_x + dx, head_y + dy)
-
         hits_wall = not (0 <= new_head[0] < self.width and 0 <= new_head[1] < self.height)
         hits_self = new_head in self.snake[:-1]
         if hits_wall or hits_self:
@@ -119,21 +102,14 @@ class SnakeApp(App[None]):
         self.update_view()
 
     def spawn_food(self) -> tuple[int, int] | None:
-        empty = [
-            (x, y)
-            for y in range(self.height)
-            for x in range(self.width)
-            if (x, y) not in self.snake
-        ]
+        empty = [(x, y) for y in range(self.height) for x in range(self.width) if (x, y) not in self.snake]
         return random.choice(empty) if empty else None
 
     def update_view(self) -> None:
         if not self.is_mounted:
             return
-        status = self.query_one("#status", Static)
-        status.update(
-            f"Score: {self.score}  |  "
-            + ("GAME OVER — press R to restart" if self.game_over else "Arrow keys: move")
+        self.query_one("#status", Static).update(
+            f"Score: {self.score}  |  " + ("GAME OVER — press R to restart" if self.game_over else "Arrow keys: move")
         )
         self.query_one("#board", SnakeBoard).refresh()
 
